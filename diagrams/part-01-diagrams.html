@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark on Kubernetes - Complete Asset Library</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: { htmlLabels: false, curve: 'basis', padding: 15 },
+            sequence: { diagramMarginX: 50, diagramMarginY: 10, actorMargin: 50, width: 150, height: 65 }
+        });
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f8fafc;
+            padding: 40px;
+            margin: 0;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .section-label {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin: 60px 0 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .section-label::before,
+        .section-label::after {
+            content: "";
+            height: 1px;
+            width: 40px;
+            background: #cbd5e1;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            margin-bottom: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h2 {
+            color: #334155;
+            margin: 0 0 25px 0;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 8px 18px;
+            border-radius: 50px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .mermaid {
+            text-align: center;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+
+        code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Custom Box Components */
+        .box-diagram {
+            padding: 30px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .box-diagram-label {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .node {
+            background: white;
+            border: 2px solid #3b82f6;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            min-width: 110px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .node-worker {
+            border-color: #22c55e;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: #94a3b8;
+        }
+
+        /* Memory Diagram */
+        .mem-container {
+            background: #1e293b;
+            color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .mem-header {
+            background: #0f172a;
+            padding: 12px;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .mem-body {
+            padding: 15px;
+        }
+
+        .mem-block {
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .mem-spark {
+            background: #3b82f6;
+        }
+
+        .mem-user {
+            background: #64748b;
+        }
+
+        .mem-reserved {
+            background: #ef4444;
+        }
+
+        .mem-split {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .mem-sub {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* Worker Node */
+        .worker-viz {
+            border: 2px solid #94a3b8;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f1f5f9;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .worker-label {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .pods-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .pod-box {
+            background: white;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .pod-title {
+            text-align: center;
+            font-weight: 600;
+            color: #166534;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .container-inner {
+            background: #dcfce7;
+            border: 1px dashed #166534;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #14532d;
+            text-align: center;
+        }
+
+        .node-services {
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 12px;
+            margin-top: 5px;
+        }
+
+        .service {
+            flex: 1;
+            background: #e2e8f0;
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Stages */
+        .stage-box {
+            border: 1px dashed #94a3b8;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .stage-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .task-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .task {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #1e40af;
+        }
+
+        .exec {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .shuffle-arrow {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            margin: 5px 0;
+        }
+
+        /* Performance Bars */
+        .perf-container {
+            background: #1e293b;
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .perf-section {
+            margin-bottom: 25px;
+        }
+
+        .perf-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .perf-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .perf-bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .perf-label {
+            width: 100px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .perf-bar-bg {
+            flex: 1;
+            background: #334155;
+            height: 24px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .perf-bar {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .perf-bar-yarn {
+            background: #f59e0b;
+            width: 40%;
+        }
+
+        .perf-bar-k8s {
+            background: #3b82f6;
+        }
+
+        .perf-note {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .perf-note .icon {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Spark on Kubernetes</h1>
+        <div class="subtitle">Complete Visual Asset Library — 18 Assets Ready for Screenshots</div>
+    </div>
+
+    <!-- ============ SECTION 1: CORE CONCEPTS ============ -->
+    <div class="section-label">1. Core Concepts</div>
+
+    <div class="card">
+        <h2>Distributed System Model</h2>
+        <div class="box-diagram">
+            <div class="box-diagram-label">Distributed System</div>
+            <div class="flex-row">
+                <div class="node" style="background:#eff6ff">
+                    <div>Manager</div>
+                    <div style="font-size:0.8rem; font-weight:400; color:#64748b">(Driver)</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="flex-col">
+                    <div class="node node-worker">Worker 1</div>
+                    <div class="node node-worker">Worker 2</div>
+                    <div class="node node-worker">Worker 3</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>CS Fundamentals: Process vs Thread vs Container</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Concept</th>
+                    <th>Definition</th>
+                    <th>Analogy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Process</strong></td>
+                    <td>An independent program running with its own memory</td>
+                    <td>A separate kitchen with its own chef</td>
+                </tr>
+                <tr>
+                    <td><strong>Thread</strong></td>
+                    <td>A lightweight execution unit within a process</td>
+                    <td>Multiple cooks in the same kitchen</td>
+                </tr>
+                <tr>
+                    <td><strong>Container</strong></td>
+                    <td>An isolated environment packaging code + deps</td>
+                    <td>A food truck: self-contained, portable</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============ SECTION 2: SPARK ARCHITECTURE ============ -->
+    <div class="section-label">2. Big Data Foundations: Spark Architecture</div>
+
+    <div class="card">
+        <h2>Spark Driver Components</h2>
+        <div class="mermaid">
+            graph TB
+            subgraph Driver["Spark Driver Process"]
+            SC["SparkContext"]
+            DAG["DAGScheduler"]
+            TS["TaskScheduler"]
+            SB["SchedulerBackend"]
+            BM["BlockManager"]
+            SC --> DAG --> TS --> SB
+            SC --> BM
+            end
+            SB -.-> K8s["K8s API Server"]
+            TS ==> E1["Executor 1"]
+            TS ==> E2["Executor 2"]
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Class Hierarchy: SchedulerBackend</h2>
+        <div style="text-align: center;">
+            <img src="class_hierarchy_diagram_1768243327078.png" alt="Class Hierarchy Diagram"
+                style="max-width: 100%; height: auto; border-radius: 8px;">
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Executor Memory Layout (4GB Example)</h2>
+        <div class="mem-container">
+            <div class="mem-header">EXECUTOR MEMORY (4GB Total)</div>
+            <div class="mem-body">
+                <div class="mem-block mem-spark">
+                    <strong>Spark Memory (60% = 2.4GB)</strong>
+                    <div class="mem-split">
+                        <div class="mem-sub"><strong>Execution 50%</strong><br>Shuffles, Joins, Sorts</div>
+                        <div class="mem-sub"><strong>Storage 50%</strong><br>Cache, Broadcast Vars</div>
+                    </div>
+                </div>
+                <div class="mem-block mem-user"><strong>User Memory (40% = 1.6GB)</strong><br><small>UDFs, Custom
+                        Data Structures</small></div>
+                <div class="mem-block mem-reserved"><strong>Reserved (300MB fixed)</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SECTION 3: KUBERNETES ARCHITECTURE ============ -->
+    <div class="section-label">3. The Orchestrator: Kubernetes Architecture</div>
+
+    <div class="card">
+        <h2>K8s Control Plane</h2>
+        <div class="mermaid">
+            graph TB
+            subgraph Control["Control Plane"]
+            API["API Server"]
+            SCHED["kube-scheduler"]
+            ETCD[("etcd")]
+            end
+            subgraph Driver["Spark Driver"]
+            SC["K8sBackend"]
+            end
+            subgraph Workers["Worker Nodes"]
+            K1["Kubelet"]
+            end
+            SC -- "1. Create Pods" --> API
+            API -- "2. Store" --> ETCD
+            SCHED -- "3. Assign" --> API
+            K1 -- "4. Watch" --> API
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>K8s Components Explained</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>What it does</th>
+                    <th>Analogy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>API Server</strong></td>
+                    <td>Receives all requests, authenticates, stores in etcd</td>
+                    <td>Reception desk</td>
+                </tr>
+                <tr>
+                    <td><strong>etcd</strong></td>
+                    <td>Stores all cluster state</td>
+                    <td>Filing cabinet</td>
+                </tr>
+                <tr>
+                    <td><strong>Scheduler</strong></td>
+                    <td>Decides which node runs each pod</td>
+                    <td>Seating chart manager</td>
+                </tr>
+                <tr>
+                    <td><strong>Controller Manager</strong></td>
+                    <td>Ensures reality matches desired state</td>
+                    <td>Quality inspector</td>
+                </tr>
+                <tr>
+                    <td><strong>Kubelet</strong></td>
+                    <td>Runs on each node, starts/stops containers</td>
+                    <td>Security guard</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Worker Node Structure</h2>
+        <div class="worker-viz">
+            <div class="worker-label">Worker Node (VM — 32GB RAM)</div>
+            <div class="pods-row">
+                <div class="pod-box">
+                    <div class="pod-title">Executor Pod 1</div>
+                    <div class="container-inner"><strong>Spark JVM</strong><br>4GB / 2 cores</div>
+                </div>
+                <div class="pod-box">
+                    <div class="pod-title">Executor Pod 2</div>
+                    <div class="container-inner"><strong>Spark JVM</strong><br>4GB / 2 cores</div>
+                </div>
+            </div>
+            <div class="node-services">
+                <div class="service">kubelet</div>
+                <div class="service">kube-proxy</div>
+                <div class="service">containerd</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SECTION 4: EXECUTOR POD LIFECYCLE ============ -->
+    <div class="section-label">4. The Runtime State: Executor Pod Lifecycle</div>
+
+    <div class="card">
+        <h2>Executor Pod States</h2>
+        <div class="mermaid">
+            stateDiagram-v2
+            [*] --> Pending: Pod Created
+            Pending --> Running: Scheduled to Node
+            Pending --> Failed: No Resources
+            Running --> Succeeded: Tasks Complete
+            Running --> Failed: OOMKilled / Error
+            Running --> Unknown: Node Lost
+            Unknown --> Running: Node Recovered
+            Unknown --> Failed: Timeout
+            Succeeded --> [*]: Pod Deleted
+            Failed --> [*]: Pod Deleted
+        </div>
+    </div>
+
+    <!-- ============ SECTION 5: SUBMISSION FLOW ============ -->
+    <div class="section-label">5. Integrated Orchestration: Submission Flow</div>
+
+    <div class="card">
+        <h2>Complete Submission Flow</h2>
+        <div class="mermaid">
+            sequenceDiagram
+            participant You
+            participant SparkSubmit
+            participant K8sAPI as K8s API
+            participant Scheduler
+            participant Kubelet
+            participant Driver
+            participant Executor
+
+            You->>SparkSubmit: spark-submit --master k8s://
+            SparkSubmit->>K8sAPI: POST /pods (Create Driver)
+            K8sAPI->>Scheduler: Schedule Pod
+            Scheduler->>K8sAPI: Assign Node
+            Kubelet->>Driver: Start container
+            Driver->>K8sAPI: POST /pods (Create Executors)
+            Kubelet->>Executor: Start executors
+            Executor->>Driver: Register
+            Driver->>Executor: Send Tasks
+            Executor->>Driver: Task Results
+            Driver->>K8sAPI: DELETE executor pods
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Spark Submit Arguments</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Argument</th>
+                    <th>Meaning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--master k8s://...</code></td>
+                    <td>Use Kubernetes as cluster manager (API server URL)</td>
+                </tr>
+                <tr>
+                    <td><code>--deploy-mode cluster</code></td>
+                    <td>Run driver inside K8s (not on your laptop)</td>
+                </tr>
+                <tr>
+                    <td><code>--name my-spark-job</code></td>
+                    <td>Human-readable name for your job</td>
+                </tr>
+                <tr>
+                    <td><code>--class com.example.MyJob</code></td>
+                    <td>The main class to run</td>
+                </tr>
+                <tr>
+                    <td><code>spark.kubernetes.container.image</code></td>
+                    <td>Docker image containing Spark + your code</td>
+                </tr>
+                <tr>
+                    <td><code>spark.executor.instances=3</code></td>
+                    <td>Request 3 executor pods</td>
+                </tr>
+                <tr>
+                    <td><code>spark.executor.memory=4g</code></td>
+                    <td>Each executor gets 4GB memory</td>
+                </tr>
+                <tr>
+                    <td><code>spark.kubernetes.namespace</code></td>
+                    <td>Which K8s namespace to use</td>
+                </tr>
+                <tr>
+                    <td><code>spark.kubernetes.authenticate...</code></td>
+                    <td>Service account for RBAC permissions</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============ SECTION 6: DEEP DIVE INTERNALS ============ -->
+    <div class="section-label">6. The Engine Room: Deep Dive Internals</div>
+
+    <div class="card">
+        <h2>DAG Stages: Before & After Shuffle</h2>
+        <div style="max-width: 500px; margin: 0 auto;">
+            <div class="stage-box">
+                <div class="stage-title">Stage 0 (Before Shuffle)</div>
+                <div>Read Parquet → Filter → Hash by "city"</div>
+            </div>
+            <div class="shuffle-arrow">↓ <span style="font-size:0.8rem">SHUFFLE</span> ↓</div>
+            <div class="stage-box">
+                <div class="stage-title">Stage 1 (After Shuffle)</div>
+                <div>Aggregate counts → Write to Parquet</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Task to Executor Mapping</h2>
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div class="stage-box">
+                <div class="stage-title">Stage 0 with 4 Partitions</div>
+                <div class="task-row">
+                    <div class="task">Task 0</div>
+                    <div class="task">Task 1</div>
+                    <div class="task">Task 2</div>
+                    <div class="task">Task 3</div>
+                </div>
+            </div>
+            <div class="shuffle-arrow">↓</div>
+            <div class="stage-box" style="background:#f0fdf4; border-color:#22c55e;">
+                <div class="stage-title" style="color:#166534">Scheduled to Executors</div>
+                <div class="task-row">
+                    <div class="exec">Executor 1<br><small>(Task 0, 2)</small></div>
+                    <div class="exec">Executor 2<br><small>(Task 1, 3)</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SECTION 7: BENCHMARKING REALITY ============ -->
+    <div class="section-label">7. Benchmarking Reality: Performance</div>
+
+    <div class="card">
+        <h2>Performance: K8s vs YARN (Visual)</h2>
+        <div class="perf-container">
+            <div class="perf-section">
+                <div class="perf-title">Job Startup Time</div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">YARN</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-yarn" style="width:35%">10-20 sec</div>
+                    </div>
+                </div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">Kubernetes</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-k8s" style="width:70%">30-60 sec</div>
+                    </div>
+                </div>
+                <div class="perf-note"><span class="icon">⚠️</span> K8s slower due to pod scheduling + container
+                    startup</div>
+            </div>
+            <div class="perf-section">
+                <div class="perf-title">Executor Creation</div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">YARN</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-yarn" style="width:20%">1-2 sec</div>
+                    </div>
+                </div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">Kubernetes</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-k8s" style="width:50%">5-10 sec</div>
+                    </div>
+                </div>
+                <div class="perf-note"><span class="icon">⚠️</span> Faster if image is pre-pulled on nodes</div>
+            </div>
+            <div class="perf-section">
+                <div class="perf-title">Steady-State Processing</div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">YARN</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-yarn" style="width:80%">Baseline</div>
+                    </div>
+                </div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">Kubernetes</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-k8s" style="width:80%">Similar (±5%)</div>
+                    </div>
+                </div>
+                <div class="perf-note"><span class="icon">✅</span> Performance is comparable once running</div>
+            </div>
+            <div class="perf-section">
+                <div class="perf-title">Resource Utilization</div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">YARN</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-yarn" style="width:65%">60-80%</div>
+                    </div>
+                </div>
+                <div class="perf-bar-row">
+                    <div class="perf-label">Kubernetes</div>
+                    <div class="perf-bar-bg">
+                        <div class="perf-bar perf-bar-k8s" style="width:85%">70-90%</div>
+                    </div>
+                </div>
+                <div class="perf-note"><span class="icon">✅</span> K8s bin-packing often achieves better utilization
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Cost Comparison: YARN vs K8s</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>YARN (EMR on EC2)</th>
+                    <th>Kubernetes (EMR on EKS)</th>
+                    <th>Difference</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Processing Time</strong></td>
+                    <td>Baseline</td>
+                    <td>5% faster</td>
+                    <td><span class="badge badge-green">✅</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Cost per Job</strong></td>
+                    <td>$100</td>
+                    <td>$39</td>
+                    <td><strong style="color:#166534">61% cheaper</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Resource Utilization</strong></td>
+                    <td>65%</td>
+                    <td>85%</td>
+                    <td><strong style="color:#166534">+30%</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Storage Options Comparison</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Performance</th>
+                    <th>Persistence</th>
+                    <th>Best For</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>emptyDir</strong></td>
+                    <td><span class="badge badge-green">High</span></td>
+                    <td><span class="badge badge-red">Lost on Crash</span></td>
+                    <td>Dev / Test</td>
+                </tr>
+                <tr>
+                    <td><strong>hostPath (SSD)</strong></td>
+                    <td><span class="badge badge-green">Very High</span></td>
+                    <td><span class="badge badge-amber">Node Local</span></td>
+                    <td><strong>Production</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>PVC</strong></td>
+                    <td><span class="badge badge-amber">Medium</span></td>
+                    <td><span class="badge badge-blue">Guaranteed</span></td>
+                    <td>Checkpointing</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+</html>

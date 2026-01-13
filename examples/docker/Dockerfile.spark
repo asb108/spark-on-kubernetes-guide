@@ -1,0 +1,37 @@
+# Dockerfile.spark
+# Production Spark image with cloud connectors and monitoring
+# Build: docker build -t spark-custom:3.5.0 -f Dockerfile.spark .
+
+# Stage 1: Download JARs
+FROM alpine:3.18 AS jar-downloader
+RUN apk add --no-cache curl
+WORKDIR /jars
+
+# GCS Connector
+RUN curl -L -o gcs-connector.jar \
+    https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.17/gcs-connector-hadoop3-2.2.17-shaded.jar
+
+# Delta Lake 3.1 (for Spark 3.5)
+RUN curl -L -o delta-spark.jar \
+    https://repo1.maven.org/maven2/io/delta/delta-spark_2.12/3.1.0/delta-spark_2.12-3.1.0.jar && \
+    curl -L -o delta-storage.jar \
+    https://repo1.maven.org/maven2/io/delta/delta-storage/3.1.0/delta-storage-3.1.0.jar
+
+# Prometheus JMX Exporter
+RUN curl -L -o jmx_prometheus_javaagent.jar \
+    https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.19.0/jmx_prometheus_javaagent-0.19.0.jar
+
+# Stage 2: Final Image
+FROM apache/spark:3.5.0-python3
+
+USER root
+
+COPY --from=jar-downloader /jars/*.jar /opt/spark/jars/
+COPY requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+COPY spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+
+RUN chmod -R 755 /opt/spark/jars/
+
+USER spark
+WORKDIR /opt/spark

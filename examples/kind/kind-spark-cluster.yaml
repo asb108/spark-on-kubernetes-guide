@@ -1,0 +1,62 @@
+# kind-spark-cluster.yaml
+# Multi-node KinD cluster optimized for Spark workloads
+# Usage: kind create cluster --config kind-spark-cluster.yaml
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: spark-cluster
+
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+
+nodes:
+  # Control Plane
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=control-plane"        
+    extraPortMappings:
+      - containerPort: 30040
+        hostPort: 4040
+        protocol: TCP
+      - containerPort: 30180
+        hostPort: 18080
+        protocol: TCP
+
+  # Worker Nodes
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=worker,spark-role=any"
+    extraMounts:
+      - hostPath: /tmp/spark-local-dir-1
+        containerPath: /data/spark
+
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=worker,spark-role=any"
+    extraMounts:
+      - hostPath: /tmp/spark-local-dir-2
+        containerPath: /data/spark
+
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "node-type=worker,spark-role=any"
+    extraMounts:
+      - hostPath: /tmp/spark-local-dir-3
+        containerPath: /data/spark
