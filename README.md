@@ -15,7 +15,7 @@
 |------|-------|--------|-----------|
 | 1 | [Architecture Deep Dive](./articles/part-01-architecture-deep-dive.md) | ✅ Published | 45 min |
 | 2 | [Environment Setup (KinD + GKE)](./articles/part-02-environment-setup.md) | ✅ Published | 55 min |
-| 3 | Building Production Spark Images | 🔄 Coming Soon | - |
+| 3 | [Building Production Spark Images](./articles/part-03-docker-images.md) | ✅ Published | 50 min |
 | 4 | Security Deep Dive (RBAC, Secrets, Network) | 📝 Planned | - |
 | 5 | spark-submit Mastery | 📝 Planned | - |
 | 6 | Spark Operator | 📝 Planned | - |
