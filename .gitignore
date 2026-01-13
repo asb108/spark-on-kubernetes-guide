@@ -1,0 +1,16 @@
+# Diagrams (kept local, not for public viewing)
+diagrams/
+
+# System files
+.DS_Store
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Temporary files
+*.tmp
+*.bak
