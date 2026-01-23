@@ -820,17 +820,18 @@ kubectl patch -n kube-system deployment metrics-server \
 helm repo add spark-operator https://kubeflow.github.io/spark-operator
 helm repo update
 
-# Install
+# Install (KinD Optimized)
 helm install spark-operator spark-operator/spark-operator \
   --namespace spark-operator \
   --create-namespace \
-  --set webhook.enable=true \
-  --set sparkJobNamespace=spark-jobs \
-  --set logLevel=3
+  --set webhook.enable=false \
+  --set sparkJobNamespace=spark-jobs
 
 # Verify
 kubectl get pods -n spark-operator
 ```
+
+> **Note:** We disable the webhook for KinD to avoid certificate management issues. We also explicitly set `sparkJobNamespace=spark-jobs` so the operator watches our namespace.
 
 ### 3. (Optional) Kubernetes Dashboard
 
