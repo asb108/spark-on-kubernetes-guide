@@ -22,6 +22,7 @@ By the end of this guide, you'll have:
 **Reading Time:** 50 minutes  
 **Hands-On Time:** 45 minutes  
 **Prerequisites:** [Part 2: Environment Setup](./part-02-environment-setup.md)
+**Visual Reference:** [View Diagrams & Tables (Interactive)](./diagrams-part3.html)
 
 ---
 
@@ -212,9 +213,11 @@ RUN curl -fSL -o iceberg-spark-runtime.jar \
     "https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-3.5_2.12/${ICEBERG_VERSION}/iceberg-spark-runtime-3.5_2.12-${ICEBERG_VERSION}.jar"
 
 # ----- Apache Hudi -----
+# ----- Apache Hudi -----
 ARG HUDI_VERSION=0.14.1
+# Note: Using spark3.4 bundle as 3.5 bundle is not yet available on Maven Central for 0.14.1
 RUN curl -fSL -o hudi-spark-bundle.jar \
-    "https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark3.5-bundle_2.12/${HUDI_VERSION}/hudi-spark3.5-bundle_2.12-${HUDI_VERSION}.jar"
+    "https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark3.4-bundle_2.12/${HUDI_VERSION}/hudi-spark3.4-bundle_2.12-${HUDI_VERSION}.jar"
 
 # ----- Prometheus JMX Exporter -----
 ARG JMX_EXPORTER_VERSION=0.20.0

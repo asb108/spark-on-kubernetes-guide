@@ -16,13 +16,13 @@
 | 1 | [Architecture Deep Dive](./articles/part-01-architecture-deep-dive.md) | ✅ Published | 45 min |
 | 2 | [Environment Setup (KinD + GKE)](./articles/part-02-environment-setup.md) | ✅ Published | 55 min |
 | 3 | [Building Production Spark Images](./articles/part-03-docker-images.md) | ✅ Published | 50 min |
-| 4 | Security Deep Dive (RBAC, Secrets, Network) | 📝 Planned | - |
-| 5 | spark-submit Mastery | 📝 Planned | - |
-| 6 | Spark Operator | 📝 Planned | - |
-| 7 | Airflow Integration | 📝 Planned | - |
-| 8 | Advanced Methods (Livy, Jupyter, Argo) | 📝 Planned | - |
-| 9 | Cloud Managed Services | 📝 Planned | - |
-| 10 | Production Operations | 📝 Planned | - |
+| 4 | [Security Deep Dive](./articles/part-04-security.md) | ✅ Published | 60 min |
+| 5 | [spark-submit Mastery](./articles/part-05-spark-submit.md) | ✅ Published | 65 min |
+| 6 | [Spark Operator](./articles/part-06-spark-operator.md) | ✅ Published | 55 min |
+| 7 | [Airflow Integration](./articles/part-07-airflow-integration.md) | ✅ Published | 70 min |
+| 8 | Production Best Practices | 📝 Planned | - |
+| 9 | Advanced Methods (Livy, Argo) | 📝 Planned | - |
+| 10 | Cloud Managed Services | 📝 Planned | - |
 
 ---
 
